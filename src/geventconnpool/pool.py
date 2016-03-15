@@ -1,7 +1,8 @@
+# coding=utf-8
 import logging
 
 import gevent
-from gevent.coros import BoundedSemaphore
+from gevent.lock import BoundedSemaphore
 from gevent import socket
 from collections import deque
 from contextlib import contextmanager
@@ -9,7 +10,7 @@ from functools import wraps
 
 __all__ = ["ConnectionPool", "retry"]
 
-DEFAULT_EXC_CLASSES = (socket.error,)
+DEFAULT_EXC_CLASSES = (socket.error, )
 
 
 class ConnectionPool(object):
@@ -30,9 +31,9 @@ class ConnectionPool(object):
         self.keepalive = keepalive
         # Exceptions list must be in tuple form to be caught properly
         self.exc_classes = tuple(exc_classes)
-        for i in xrange(size):
+        for i in iter(range(size)):
             self.lock.acquire()
-        for i in xrange(size):
+        for i in iter(range(size)):
             gevent.spawn_later(self.SPAWN_FREQUENCY*i, self._addOne)
         if self.keepalive:
             gevent.spawn(self._keepalive_periodic)
